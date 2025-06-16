@@ -1,16 +1,19 @@
 
-Backend Server of Gausej Tech
+#  Backend Server of Gausej Tech
 
 This backend project provides a secure user authentication system with features including:
 
--  JWT-based authentication
--  Email verification using Nodemailer
--  Google OAuth login
--  Modular folder structure
+-  JWT-based authentication  
+-  Email verification using Nodemailer  
+-  Google OAuth login  
+-  Modular folder structure  
 -  MongoDB database integration
 
- Folder Structure
+---
 
+##  Folder Structure
+
+```
 backend/
 │
 ├── authService/              # Handles token generation, hashing, etc.
@@ -29,92 +32,114 @@ backend/
 ├── .gitignore                # Files/folders to ignore in Git
 ├── package.json              # Project metadata and dependencies
 ├── package-lock.json         # Exact dependency tree
-├── README.md                 # You're reading it 
+├── README.md                 # You're reading it
 └── server.js                 # Entry point to the app
+```
 
- Getting Started
+---
 
- Prerequisites
-- Node.js (v16 or later)
-- MongoDB (Local or Cloud)
+##  Getting Started
+
+###  Prerequisites
+
+- Node.js (v16 or later)  
+- MongoDB (Local or Cloud)  
 - Git
 
- Clone and Install
+###  Clone and Install
 
+```bash
 # Clone the repository
 git clone https://github.com/your-username/your-repo-name.git
 
-# Go to the project directory
+# Navigate to the project directory
 cd your-repo-name/backend
 
 # Install dependencies
 npm install
+```
 
- Environment Setup
+---
+
+###  Environment Setup
 
 Create a `.env` file in the `backend/` directory and add the following:
 
-PORT = your port
-MONGO_URL =   your mongodb uri
-JWT_SECRET = your jwt secret
-ADMIN_EMAIL = your admin email
-ADMIN_PASSWORD = your admin email password
+```env
+PORT=your_port
+MONGO_URL=your_mongodb_uri
+JWT_SECRET=your_jwt_secret
+ADMIN_EMAIL=your_admin_email
+ADMIN_PASSWORD=your_admin_email_password
 
-AWS_ACCESS_KEY= your aws acces key
-AWS_SECRET_KEY= your aws secret key
-AWS_REGION_S3= your aws region
-AWS_BUCKET_NAME= your aws bucket name
+AWS_ACCESS_KEY=your_aws_access_key
+AWS_SECRET_KEY=your_aws_secret_key
+AWS_REGION_S3=your_aws_region
+AWS_BUCKET_NAME=your_aws_bucket_name
 
-CLIENT_URL = your frontend URL
-GOOGLE_CLIENT_ID = your google client id
-GOOGLE_CLIENT_SECRET = your google client secret
-GOOGLE_REDIRECT_URI = your google callback uri
+CLIENT_URL=your_frontend_url
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+GOOGLE_REDIRECT_URI=your_google_callback_uri
+```
 
-▶ Running the App
+---
 
-# Run the server
+### ▶ Running the App
+
+```bash
+# Start the server
 npm start
 
-# Or using nodemon (for development)
+# OR for development using nodemon
 npm run dev
+```
 
- API Routes Overview
+---
 
-Auth & Profile Routes
-| Method | Route           | Description         |
-|--------|------------------|---------------------|
-| POST   | /auth/signup     | Register user       |
-| POST   | /auth/login      | Login user          |
-| POST    | /auth/logout     | Logout user         |
-| POST    | /auth/forgot-password        | Forget password Route       |
-| POST   | /auth/reset-password/:resetToken     | Reset Password Route  |
-| GET    | /user/profile   | Get user Profile |
-| PUT    | /auth/update-profile    | Update user profile  |
+##  API Routes Overview
 
-Google Auth Route
-| Method | Route           | Description         |
-|--------|------------------|---------------------|
-| GET    | /auth/google     | Google login        |
-| GET    | /auth/google/callback  | Google callback route  |
+### Auth & Profile Routes
 
+| Method | Route                             | Description             |
+|--------|-----------------------------------|-------------------------|
+| POST   | /auth/signup                      | Register user           |
+| POST   | /auth/login                       | Login user              |
+| POST   | /auth/logout                      | Logout user             |
+| POST   | /auth/forgot-password             | Forgot password route   |
+| POST   | /auth/reset-password/:resetToken | Reset password          |
+| GET    | /user/profile                     | Get user profile        |
+| PUT    | /auth/update-profile              | Update user profile     |
 
+### Google Auth Routes
 
- Tech Stack
+| Method | Route                   | Description             |
+|--------|-------------------------|-------------------------|
+| GET    | /auth/google            | Google login            |
+| GET    | /auth/google/callback   | Google callback route   |
 
-- Node.js
-- Express.js
-- MongoDB + Mongoose
-- Nodemailer
-- Google OAuth2
-- JWT
+---
+
+##  Tech Stack
+
+- Node.js  
+- Express.js  
+- MongoDB + Mongoose  
+- Nodemailer  
+- Google OAuth2  
+- JWT  
 - dotenv
 
- Author
+---
 
-Made by Developer team of GausejTech
+##  Author
 
-All Right reserved @GausejTech
+Made by the Developer Team of **Gausej Tech**
 
-📃 License
+**All rights reserved © Gausej Tech**
 
-This project is open source under the MIT License.
+---
+
+##  License
+
+This project is open source under the **MIT License**
