@@ -25,11 +25,12 @@ connectDB();
 
 const userAuthRoute = require('./routes/userAuthRoute/userRoute')
 const googleAuthRoute = require('./routes/googleAuthRoute/loginWithGoogle');
-const userProfileRoute = require('./routes/userProfileRoute/userRoute')
+const userProfileRoute = require('./routes/userProfileRoute/userRoute');
+const videoUploadRoute = require('./routes/uploadRoute/videoRoute')
 
 
 app.use("/api/auth", userAuthRoute, googleAuthRoute);
-app.use("/api/user", userProfileRoute);
+app.use("/api/user", userProfileRoute, videoUploadRoute);
 
 
 app.listen(PORT, () => {
