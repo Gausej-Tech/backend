@@ -4,21 +4,30 @@ const User = require("../model/userModel");
 const { createToken } = require("../authService/authService");
 const setTokenCookie = require("../authService/setTokenCookie");
 const clearTokenCookie = require("../authService/clearCookie");
-
+const crypto = require("crypto");
+const { sendOtpEmail } = require("../emailService/userAuthEmail");
 
 const signup = async (req, res) => {
-  const { fullName, email, password } = req.body;
+  const {
+    fullName,
+    email,
+    password,
+    phone,
+    bio,
+    title,
+    linkedinLink,
+    twitterLink,
+    websiteUrl,
+    profilePhoto,
+  } = req.body;
   if (!fullName || !email || !password) {
     return res.json({ success: false, message: "All fields are required" });
   }
 
-
   try {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res
-        .status(400)
-        .json({ msg: "User already exists." });
+      return res.status(400).json({ msg: "User already exists." });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -27,8 +36,13 @@ const signup = async (req, res) => {
       fullName,
       email,
       password: hashedPassword,
-      profilePhoto,
       phone,
+      bio,
+      title,
+      linkedinLink,
+      twitterLink,
+      websiteUrl,
+      profilePhoto,
     };
 
     const newUser = await User.create(newUserData);
@@ -94,82 +108,132 @@ const forgotPassword = async (req, res) => {
       return res.status(404).json({ msg: "User not found" });
     }
 
-    const resetToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
-    
-    const resetLink = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
 
-    const emailSent = await sendResetPassword(
-      user.fullName,
-      user.email,
-      resetLink
-    );
+    user.otp = otp;
+    user.otpExpires = otpExpires;
+    await user.save();
+
+    const emailSent = await sendOtpEmail(user.fullName, user.email, otp);
 
     if (!emailSent) {
-      return res.status(500).json({ msg: "Failed to send reset email" });
+      return res.status(500).json({ msg: "Failed to send OTP email" });
     }
 
     return res.status(200).json({
-      resetLink,
-      msg: "Reset link sent to your email successfully",
+      msg: "OTP sent to your email successfully",
+      user
     });
   } catch (error) {
     return res.status(500).json({
-      msg: `Server error from forgot password: ${error.message}`,
+      msg: `Server error from forgotPassword: ${error.message}`,
     });
   }
 };
 
-const handleResetPassword = async (req, res) => {
-  const { resetToken } = req.params;
-  const { newPassword } = req.body;
-
+const handleVerifyResetPasswordOtp = async (req, res) => {
   try {
-    if (!resetToken) {
-      return res.status(400).json({ message: "Reset token is required" });
-    }
+    const { otp } = req.body;
 
-    const decoded = jwt.verify(resetToken, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.userId);
+    const user = await User.findOne({
+      otp: otp,
+      otpExpires: { $gt: new Date() },
+    });
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired OTP",
+      });
     }
 
-    
+    user.otp = null;
+    user.otpExpires = null;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP verified successfully",
+      user,
+      email: user.email,
+    });
+  } catch (error) {
+    console.error("Error verifying OTP:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error while verifying OTP",
+    });
+  }
+};
+
+const resetPasswordAfterOtp = async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
+
+    if (!email || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and new password are required",
+      });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(newPassword, salt);
 
     await user.save();
 
-    return res.status(200).json({ msg: "Password reset successfully" });
+    return res.status(200).json({
+      success: true,
+      message: "Password reset successfully",
+    });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ msg: `Server error from handleResetPassword: ${error}` });
+    console.error("Error resetting password:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error while resetting password",
+    });
   }
-};
-
-
+}
 
 const updateUserProfile = async (req, res) => {
   try {
-
     const userId = req.user.id;
 
-    const { fullName, phone } = req.body;
-    const profilePhoto = req.file ? req.file.path : undefined;
+    const {
+      fullName,
+      phone,
+      websiteUrl,
+      twitterLink,
+      linkedinLink,
+      title,
+      bio,
+    } = req.body;
 
+    const profilePhoto = req.file ? req.file.path : undefined;
 
     const updateData = {};
     if (fullName) updateData.fullName = fullName;
     if (phone) updateData.phone = phone;
+    if (websiteUrl) updateData.websiteUrl = websiteUrl;
+    if (twitterLink) updateData.twitterLink = twitterLink;
+    if (linkedinLink) updateData.linkedinLink = linkedinLink;
+    if (title) updateData.title = title;
+    if (bio) updateData.bio = bio;
     if (profilePhoto) updateData.profilePhoto = profilePhoto;
 
     const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
       new: true,
-      select: "-password",
+      select: "-password", 
     });
 
     if (!updatedUser) {
@@ -186,6 +250,7 @@ const updateUserProfile = async (req, res) => {
   }
 };
 
+
 const getUserProfile = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -194,7 +259,7 @@ const getUserProfile = async (req, res) => {
       return res.status(404).json({ msg: "User not found" });
     }
     return res.status(200).json({
-      user
+      user,
     });
   } catch (error) {
     console.error("Error fetching profile:", error);
@@ -202,13 +267,13 @@ const getUserProfile = async (req, res) => {
   }
 };
 
-
 module.exports = {
   signup,
   login,
   handleLogout,
   forgotPassword,
-  handleResetPassword,
+ handleVerifyResetPasswordOtp,
   updateUserProfile,
-  getUserProfile
+  getUserProfile,
+  resetPasswordAfterOtp 
 };

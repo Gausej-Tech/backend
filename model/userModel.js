@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+
 const userSchema = new mongoose.Schema(
   {
     googleId: {
@@ -15,10 +16,11 @@ const userSchema = new mongoose.Schema(
     },
     phone: {
       type: String,
-       default: null,
+      default: null,
     },
     profilePhoto: {
       type: String,
+      default: null,
     },
     email: {
       type: String,
@@ -33,10 +35,40 @@ const userSchema = new mongoose.Schema(
       enum: ["user", "admin"],
       default: "user",
     },
+
+    websiteUrl: {
+      type: String,
+      default: null,
+    },
+    twitterLink: {
+      type: String,
+      default: null,
+    },
+    linkedinLink: {
+      type: String,
+      default: null,
+    },
+    title: {
+      type: String,
+      default: null,
+    },
+    bio: {
+      type: String,
+      default: null,
+      maxlength: 1000, 
+    },
+    otp: {
+  type: String,
+  default: null,
+},
+otpExpires: {
+  type: Date,
+  default: null,
+},
+
   },
   { timestamps: true }
 );
 
 const User = mongoose.model("user", userSchema);
-
 module.exports = User;
