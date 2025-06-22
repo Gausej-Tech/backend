@@ -15,7 +15,6 @@ app.use(
   })
 );
 
-
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -23,15 +22,16 @@ app.use(express.urlencoded({ extended: false }));
 const connectDB = require("./mongodbConnection/dbConnection");
 connectDB();
 
-const userAuthRoute = require('./routes/userAuthRoute/userRoute')
-const googleAuthRoute = require('./routes/googleAuthRoute/loginWithGoogle');
-const userProfileRoute = require('./routes/userProfileRoute/userRoute');
-const videoUploadRoute = require('./routes/uploadRoute/videoRoute')
-
+const userAuthRoute = require("./routes/userAuthRoute/userRoute");
+const googleAuthRoute = require("./routes/googleAuthRoute/loginWithGoogle");
+const userProfileRoute = require("./routes/userProfileRoute/userRoute");
+const videoUploadRoute = require("./routes/uploadRoute/videoRoute");
+const userVideoRoute = require("./routes/userVideoRoute/userVideoRoute");
+const adminRoute = require("./routes/adminRoute/videoApproval");
 
 app.use("/api/auth", userAuthRoute, googleAuthRoute);
-app.use("/api/user", userProfileRoute, videoUploadRoute);
-
+app.use("/api/user", userProfileRoute, videoUploadRoute, userVideoRoute);
+app.use("./api/admin", adminRoute);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
