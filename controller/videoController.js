@@ -1,13 +1,16 @@
 const cloudinary = require("../cloudinarySetup/cloudinaryConfig");
-const { sendVideoUploadEmailToUser, sendVideoApprovalRequestToAdmin } = require("../emailService/userVideoUploadInfo");
+const {
+  sendVideoUploadEmailToUser,
+  sendVideoApprovalRequestToAdmin,
+} = require("../emailService/userVideoUploadInfo");
 const User = require("../model/userModel");
 const Video = require("../model/videoModel");
 const fs = require("fs");
 
 const uploadVideo = async (req, res) => {
   try {
-    const { title, description, category, coverImage } = req.body;
-      const userId = req.user.id;
+    const { title, description, category, coverImage,videoCount } = req.body;
+    const userId = req.user.id;
     const filePath = req.file.path;
     const result = await cloudinary.uploader.upload(filePath, {
       resource_type: "video",
@@ -22,7 +25,7 @@ const uploadVideo = async (req, res) => {
       eager_async: false,
     });
 
-       const m3u8Url = result.eager?.[0]?.secure_url;
+    const m3u8Url = result.eager?.[0]?.secure_url;
 
     fs.unlinkSync(filePath);
 
@@ -30,21 +33,25 @@ const uploadVideo = async (req, res) => {
       title,
       description,
       cloudinaryUrl: result.secure_url,
-      streamUrl: m3u8Url,  
+      streamUrl: m3u8Url,
       publicId: result.public_id,
       category,
       coverImage,
       isApproved: false,
       userId,
+      videoCount
     });
 
-  const user = await User.findById(userId);
+    await User.findByIdAndUpdate(userId, {
+      $inc: { videoCount: 1 },
+    });
+
+    const user = await User.findById(userId);
 
     if (user) {
       await sendVideoUploadEmailToUser(user.fullName, user.email, title);
       await sendVideoApprovalRequestToAdmin(title, user.fullName);
     }
-
 
     return res.status(201).json({ success: true, video: newVideo });
   } catch (err) {
@@ -96,7 +103,6 @@ const getLatestVideos = async (req, res) => {
   }
 };
 
-
 const streamVideo = async (req, res) => {
   try {
     const { publicId } = req.params;
@@ -108,7 +114,9 @@ const streamVideo = async (req, res) => {
     const video = await Video.findOne({ publicId, isApproved: true });
 
     if (!video || !video.streamUrl) {
-      return res.status(404).json({ error: "Approved video or stream URL not found" });
+      return res
+        .status(404)
+        .json({ error: "Approved video or stream URL not found" });
     }
 
     return res.status(200).json({ hlsUrl: video.streamUrl });
@@ -117,7 +125,6 @@ const streamVideo = async (req, res) => {
     res.status(500).json({ error: "Streaming failed" });
   }
 };
-
 
 const getMyVideos = async (req, res) => {
   try {
@@ -128,10 +135,16 @@ const getMyVideos = async (req, res) => {
     res.status(200).json({ success: true, videos });
   } catch (error) {
     console.error("Failed to fetch user's videos:", error);
-    res.status(500).json({ success: false, error: "Server error fetching videos" });
+    res
+      .status(500)
+      .json({ success: false, error: "Server error fetching videos" });
   }
 };
 
-
-
-module.exports = { uploadVideo, getAllVideos, streamVideo, getMyVideos , getLatestVideos};
+module.exports = {
+  uploadVideo,
+  getAllVideos,
+  streamVideo,
+  getMyVideos,
+  getLatestVideos,
+};

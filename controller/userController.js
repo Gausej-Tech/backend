@@ -6,6 +6,7 @@ const setTokenCookie = require("../authService/setTokenCookie");
 const clearTokenCookie = require("../authService/clearCookie");
 const crypto = require("crypto");
 const { sendOtpEmail } = require("../emailService/userAuthEmail");
+const Video = require("../model/videoModel");
 
 const signup = async (req, res) => {
   const {
@@ -267,6 +268,34 @@ const getUserProfile = async (req, res) => {
   }
 };
 
+
+
+
+const deleteVideoFromDatabase = async (req, res) => {
+  try {
+    const { videoId } = req.params;
+
+    const video = await Video.findById(videoId);
+
+    if (!video) {
+      return res.status(404).json({ success: false, error: "Video not found" });
+    }
+
+      if (video.userId){
+      await User.findByIdAndUpdate(video.userId, {
+        $inc: { videoCount: -1 },
+      });
+    }
+    await Video.findByIdAndDelete(videoId);
+
+    res.status(200).json({ success: true, message: "Video deleted from database" });
+  } catch (error) {
+    console.error("Delete error:", error);
+    res.status(500).json({ success: false, error: "Server error during deletion" });
+  }
+};
+
+
 module.exports = {
   signup,
   login,
@@ -275,5 +304,6 @@ module.exports = {
  handleVerifyResetPasswordOtp,
   updateUserProfile,
   getUserProfile,
-  resetPasswordAfterOtp 
+  resetPasswordAfterOtp ,
+  deleteVideoFromDatabase
 };
