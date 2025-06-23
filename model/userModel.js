@@ -19,8 +19,8 @@ const userSchema = new mongoose.Schema(
       default: null,
     },
       videoCount: {
-      type: String,
-      default: null,
+     type: Number,
+    default: 0,
     },
     profilePhoto: {
       type: String,

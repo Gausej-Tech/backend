@@ -31,7 +31,7 @@ const adminRoute = require("./routes/adminRoute/videoApproval");
 
 app.use("/api/auth", userAuthRoute, googleAuthRoute);
 app.use("/api/user", userProfileRoute, videoUploadRoute, userVideoRoute);
-app.use("./api/admin", adminRoute);
+app.use("/api/admin", adminRoute);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
