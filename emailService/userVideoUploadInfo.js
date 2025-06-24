@@ -4,15 +4,17 @@ const { transporter } = require("./nodemailerConfig");
 const sendVideoUploadEmailToUser = async (name, toEmail, videoTitle) => {
   try {
     const mailOptions = {
-      from: `"GausejTech" <${process.env.ADMIN_EMAIL}>`,
+      from: `"Gausej" <${process.env.ADMIN_EMAIL}>`,
       to: toEmail,
-      subject: "Video Submitted for Approval - GausejTech",
+      subject: "Your Video Has Been Successfully Submitted - Gausej",
       html: `
         <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
           <h2 style="color: #0056b3;">Hello ${name},</h2>
-          <p>Thank you for uploading <strong>${videoTitle}</strong>.</p>
-          <p>Your video is currently pending admin approval. You will be notified once it's reviewed.</p>
-          <p style="margin-top: 20px;">Thanks,<br/>The GausejTech Team</p>
+          <p>Thank you for submitting your video titled <strong>"${videoTitle}"</strong> on Gausej.</p>
+          <p>We have received your upload and it is currently being processed. Once processed, it will be available on your profile and visible to others on the platform.</p>
+          <p>If you have any questions or need support, feel free to contact us at <a href="mailto:support@gausej.com">support@gausej.com</a>.</p>
+          <p style="margin-top: 20px;">Thanks again for contributing to the Gausej community!</p>
+          <p style="margin-top: 20px;">Best regards,<br/>The GausejTech Team</p>
         </div>
       `,
     };
@@ -25,6 +27,7 @@ const sendVideoUploadEmailToUser = async (name, toEmail, videoTitle) => {
     return false;
   }
 };
+
 
 
 const sendVideoApprovalRequestToAdmin = async (videoTitle, uploaderName) => {

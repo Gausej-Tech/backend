@@ -223,18 +223,19 @@ const updateUserProfile = async (req, res) => {
     const profilePhoto = req.file ? req.file.path : undefined;
 
     const updateData = {};
-    if (fullName) updateData.fullName = fullName;
-    if (phone) updateData.phone = phone;
-    if (websiteUrl) updateData.websiteUrl = websiteUrl;
-    if (twitterLink) updateData.twitterLink = twitterLink;
-    if (linkedinLink) updateData.linkedinLink = linkedinLink;
-    if (title) updateData.title = title;
-    if (bio) updateData.bio = bio;
-    if (profilePhoto) updateData.profilePhoto = profilePhoto;
+
+    if ('fullName' in req.body) updateData.fullName = fullName;
+    if ('phone' in req.body) updateData.phone = phone;
+    if ('websiteUrl' in req.body) updateData.websiteUrl = websiteUrl;
+    if ('twitterLink' in req.body) updateData.twitterLink = twitterLink;
+    if ('linkedinLink' in req.body) updateData.linkedinLink = linkedinLink;
+    if ('title' in req.body) updateData.title = title;
+    if ('bio' in req.body) updateData.bio = bio;
+    if (profilePhoto !== undefined) updateData.profilePhoto = profilePhoto;
 
     const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
       new: true,
-      select: "-password", 
+      select: "-password",
     });
 
     if (!updatedUser) {
@@ -250,6 +251,7 @@ const updateUserProfile = async (req, res) => {
     res.status(500).json({ msg: "Server error while updating profile" });
   }
 };
+
 
 
 const getUserProfile = async (req, res) => {

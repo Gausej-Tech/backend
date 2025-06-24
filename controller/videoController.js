@@ -1,7 +1,6 @@
 const cloudinary = require("../cloudinarySetup/cloudinaryConfig");
 const {
   sendVideoUploadEmailToUser,
-  sendVideoApprovalRequestToAdmin,
 } = require("../emailService/userVideoUploadInfo");
 const User = require("../model/userModel");
 const Video = require("../model/videoModel");
@@ -37,7 +36,7 @@ const uploadVideo = async (req, res) => {
       publicId: result.public_id,
       category,
       coverImage,
-      isApproved: false,
+      isApproved: true,
       userId,
       videoCount
     });
@@ -49,8 +48,7 @@ const uploadVideo = async (req, res) => {
     const user = await User.findById(userId);
 
     if (user) {
-      await sendVideoUploadEmailToUser(user.fullName, user.email, title);
-      await sendVideoApprovalRequestToAdmin(title, user.fullName);
+      await sendVideoUploadEmailToUser(user.fullName, user.email, title); 
     }
 
     return res.status(201).json({ success: true, video: newVideo });
