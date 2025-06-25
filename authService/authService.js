@@ -13,7 +13,7 @@ function createToken(user) {
       role: user.role,
       phone:user.phone || null
     };
-    return JWT.sign(payload, process.env.JWT_SECRET, { expiresIn: "1d" });
+    return JWT.sign(payload, process.env.JWT_SECRET, { expiresIn: "365d" });
   } catch (error) {
     console.error("Error creating token:", error.message);
     return null;
